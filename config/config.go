@@ -27,6 +27,10 @@ var (
 	LogLevel         string
 	LogInfoFilePath  string
 	LogErrorFilePath string
+	EsHost           string
+	Sniff            bool
+	TaskName         string
+	EsIndex          string
 )
 
 // 获取文件绝对路径
@@ -68,4 +72,8 @@ func init() {
 	LogLevel = config.GetString("LOG_LEVEL")
 	LogInfoFilePath = path.Join(LogDirector, LogInfoFilename)
 	LogErrorFilePath = path.Join(LogDirector, LogInfoFilename)
+	EsHost = config.GetString("ES_HOST")
+	Sniff = config.GetBool("SNIFF")
+	TaskName = config.GetString("TASK_NAME")
+	EsIndex = config.GetString("ES_INDEX")
 }

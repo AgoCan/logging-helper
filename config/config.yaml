@@ -7,3 +7,8 @@ LOG_MAX_SIZE: 10
 LOG_MAX_BACKUPS: 5
 LOG_MAX_AGE: 10
 LOG_LEVEL: info
+
+ES_HOST: "http://36.155.14.157:11543"
+SNIFF: false
+TASK_NAME: kubernetes.labels.ev-logger-sign
+ES_INDEX: logstash*

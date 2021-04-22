@@ -13,9 +13,16 @@ func SetupRouter() *gin.Engine {
 	if err := log.InitLogger(); err != nil {
 		panic(err)
 	}
-	router.Use(log.GinLogger(log.Logger),
-		log.GinRecovery(log.Logger, true))
+	// router.Use(log.GinLogger(log.Logger),
+	// 	log.GinRecovery(log.Logger, true))
 
 	router.GET("/health", api.Health)
+
+	v1 := router.Group("/log/api/v1")
+	{
+		v1.GET("/all/task/:task", api.QueryAllLog)
+		v1.GET("/sse/task/:task", api.QuerySseLog)
+	}
+
 	return router
 }
