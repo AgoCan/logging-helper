@@ -27,7 +27,15 @@ func QuerySseLog(c *gin.Context) {
 	}
 	stream := sse.NewServer()
 	service := service.Elastic{}
+	clientChan := make(sse.ClientChan)
 
+	// Send new connection to event server
+	stream.NewClients <- clientChan
+
+	defer func() {
+		// Send closed connection to event server
+		stream.ClosedClients <- clientChan
+	}()
 	go service.QueryBySse(task, stream)
 
 	c.Stream(func(w io.Writer) bool {
@@ -44,11 +52,5 @@ func QuerySseLog(c *gin.Context) {
 			}
 		}
 		return false
-
-		// if msg, ok := <-stream.Message; ok {
-		// 	c.SSEvent("message", msg)
-		// 	return true
-		// }
-		// return false
 	})
 }

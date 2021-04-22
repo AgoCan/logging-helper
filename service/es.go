@@ -53,7 +53,7 @@ func InitElasticClinet() (err error) {
 
 func (es *Elastic) Query(taskName string) (res []string) {
 
-	pq := elastic.NewMatchPhraseQuery("kubernetes.labels.ev-logger-sign", taskName)
+	pq := elastic.NewMatchPhraseQuery(config.TaskName, taskName)
 	bQ := elastic.NewBoolQuery()
 	bQ.Must(pq)
 	numLine := 10000
@@ -73,24 +73,22 @@ func (es *Elastic) QueryBySse(taskName string, stream *sse.Event) {
 	start := time.Now().AddDate(-1, 0, 0)
 	end := time.Now()
 	rQ.Gte(start.Format("2006-01-02T15:04:05Z07:00"))
-
 	rQ.Lt(end.Format("2006-01-02T15:04:05Z07:00"))
 	pq := elastic.NewMatchPhraseQuery(config.TaskName, taskName)
-	//pq := elastic.NewMatchPhraseQuery("kubernetes.labels.k8s-app", taskName)
 
 	bQ := elastic.NewBoolQuery()
 	bQ.Must(rQ, pq)
 queryLoop:
 	for {
 		numLine := 10000
-
+		fmt.Println(bQ)
 		searchRes, err := Client.Search(config.EsIndex).Query(bQ).Size(numLine).SortBy(elastic.NewFieldSort("@timestamp").Asc()).Do(context.Background())
 		if err != nil {
 			panic(err)
 		}
 
 		var tempstr string
-		for _, tempstr := range EachTime(searchRes) {
+		for _, tempstr = range EachTime(searchRes) {
 			if strings.Contains(tempstr, "[91m") && strings.Contains(tempstr, "[0m") {
 				continue
 			}
@@ -102,7 +100,6 @@ queryLoop:
 			}
 			stream.Message <- tempstr
 		}
-
 		if stream.Stop == 1 {
 			break queryLoop
 		}
@@ -115,12 +112,10 @@ queryLoop:
 		rQ.Gte(start.Format("2006-01-02T15:04:05Z07:00"))
 		rQ.Lt(end.Format("2006-01-02T15:04:05Z07:00"))
 		pq = elastic.NewMatchPhraseQuery(config.TaskName, taskName)
-
-		//pq := elastic.NewMatchPhraseQuery("kubernetes.labels.k8s-app", taskName)
 		bQ = elastic.NewBoolQuery()
 		bQ.Must(rQ, pq)
 	}
-	return
+
 }
 
 func EachTime(r *elastic.SearchResult) (slice []string) {
